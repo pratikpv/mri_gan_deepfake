@@ -1,0 +1,74 @@
+assets: 'assets'
+data_path:
+  dfdc:
+    train: '/home/therock/data2/data_workset/deepfake_data/dfdc/train_aug_distraction'
+    valid: '/home/therock/data6/dfdc_cs298project_data/valid'
+    test: '/home/therock/data6/dfdc_cs298project_data/test'
+    train_backup: '/home/therock/data5/dataset_master/deepfake_dfdc/train/'
+    train_labels_csv_filename: 'train_labels.csv'
+    valid_labels_csv_filename: 'labels.csv'
+    test_labels_csv_filename: 'labels.csv'
+  celeb_df_v2:
+    real: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-real'
+    fake: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-synthesis'
+  train_frame_label: 'train_frame_label.csv'
+  valid_frame_label: 'valid_frame_label.csv'
+  test_frame_label: 'test_frame_label.csv'
+  train_faces_count: 'train_faces_count.csv'
+  valid_faces_count: 'valid_faces_count.csv'
+  test_faces_count: 'test_faces_count.csv'
+  train_mriframe_label: 'train_mriframe_label.csv'
+  valid_mriframe_label: 'valid_mriframe_label.csv'
+  test_mriframe_label: 'test_mriframe_label.csv'
+features:
+  dfdc:
+    landmarks_path:
+      train: '/home/therock/data2/data_workset/deepfake_data/dfdc/landmarks/train'
+      valid: '/home/therock/data2/data_workset/deepfake_data/dfdc/landmarks/valid'
+      test: '/home/therock/data2/data_workset/deepfake_data/dfdc/landmarks/test'
+    crop_faces:
+      train: '/home/therock/data2/data_workset/deepfake_data/dfdc/crop_faces/train'
+      valid: '/home/therock/data2/data_workset/deepfake_data/dfdc/crop_faces/valid'
+      test: '/home/therock/data2/data_workset/deepfake_data/dfdc/crop_faces/test'
+  celeb_df_v2:
+    landmarks_path:
+      train: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/landmarks'
+    crop_faces:
+      train: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/crop_faces/train'
+  train_mri_png: '/home/therock/data2/data_workset/dfdc/mri'
+  mri_metadata_csv: 'mri_metadata.csv'
+  mri_pairs_train_csv: 'mri_pairs_train.csv'
+  mri_pairs_test_csv: 'mri_pairs_test.csv'
+  blank_png: 'blank.png'
+  MRI_GAN_weights: 'weights/MRI_GAN_weights.chkpt'
+cnn_encoder:
+  default: 'tf_efficientnet_b0_ns'
+training:
+  train_size: 1
+  valid_size: 1
+  test_size: 1
+  params:
+    model_name: 'DeepFakeDetectModel_6'
+    label_smoothing: 0.1
+    train_transform: 'simple'
+    batch_format: 'simple'
+    epochs: 20
+    learning_rate: 0.001
+    batch_size: 192
+    fp16: True
+    opt_level: 'O0'
+    dataset: 'optical'
+logging:
+  root_log_dir: logs
+  line_len: 80
+  model_info_log: 'model_info_and_results.log'
+  model_loss_info_log: 'model_losses.log'
+  model_acc_info_log: 'model_acc.log'
+  model_conf_matrix_csv: 'confusion_matrix.csv'
+  model_conf_matrix_png: 'confusion_matrix.png'
+  model_conf_matrix_normalized_csv: 'confusion_matrix_normalized.csv'
+  model_conf_matrix_normalized_png: 'confusion_matrix_normalized.png'
+  model_accuracy_png: 'model_accuracy.png'
+  model_loss_png: 'model_loss.png'
+  all_samples_pred_csv: 'all_samples_pred.csv'
+  model_roc_png: 'model_roc.png'
