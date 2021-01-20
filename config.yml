@@ -11,6 +11,7 @@ data_path:
   celeb_df_v2:
     real: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-real'
     fake: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-synthesis'
+    real_fake_mapping: 'celeb_df_v2_real_fake_mapping.json'
   train_frame_label: 'train_frame_label.csv'
   valid_frame_label: 'valid_frame_label.csv'
   test_frame_label: 'test_frame_label.csv'
@@ -30,15 +31,18 @@ features:
       train: '/home/therock/data2/data_workset/deepfake_data/dfdc/crop_faces/train'
       valid: '/home/therock/data2/data_workset/deepfake_data/dfdc/crop_faces/valid'
       test: '/home/therock/data2/data_workset/deepfake_data/dfdc/crop_faces/test'
+    mri_metadata_csv: 'dfdc_mri_metadata.csv'
+    mri_path: '/home/therock/data2/data_workset/deepfake_data/dfdc/mri'
   celeb_df_v2:
     landmarks_path:
       train: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/landmarks'
     crop_faces:
       train: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/crop_faces/train'
-  train_mri_png: '/home/therock/data2/data_workset/dfdc/mri'
-  mri_metadata_csv: 'mri_metadata.csv'
-  mri_pairs_train_csv: 'mri_pairs_train.csv'
-  mri_pairs_test_csv: 'mri_pairs_test.csv'
+    mri_metadata_csv: 'celeb_df_v2_mri_metadata.csv'
+    mri_path: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/mri'
+  mri_dataset_train_csv: 'mri_train_dataset.csv'
+  mri_dataset_test_csv: 'mri_test_dataset.csv'
+  mri_dataset_csv: 'mri_dataset.csv'
   blank_png: 'blank.png'
   MRI_GAN_weights: 'weights/MRI_GAN_weights.chkpt'
 cnn_encoder:
