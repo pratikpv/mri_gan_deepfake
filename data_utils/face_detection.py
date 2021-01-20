@@ -52,10 +52,16 @@ def extract_faces_from_image(image):
     return face_boxes
 
 
-def extract_landmarks_from_video(input_videofile, out_dir, batch_size=32, detector=None):
+def extract_landmarks_from_video(input_videofile, out_dir, batch_size=32, detector=None, overwrite=False):
+    id = os.path.splitext(os.path.basename(input_videofile))[0]
+    out_file = os.path.join(out_dir, "{}.json".format(id))
+
+    if not overwrite and os.path.isfile(out_file):
+        return
+
     capture = cv2.VideoCapture(input_videofile)
     frames_num = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
-    id = os.path.splitext(os.path.basename(input_videofile))[0]
+
     if detector is None:
         detector = get_face_detector_model()
 
@@ -87,7 +93,6 @@ def extract_landmarks_from_video(input_videofile, out_dir, batch_size=32, detect
 
         result.update({i: b for i, b in zip(frame_indices, zip(batch_boxes, keypoints))})
 
-    out_file = os.path.join(out_dir, "{}.json".format(id))
     with open(out_file, "w") as f:
         json.dump(result, f)
 
@@ -146,7 +151,6 @@ def crop_faces_from_video(in_videofile, landmarks_path, crop_faces_out_dir, over
     id = os.path.splitext(os.path.basename(in_videofile))[0]
     json_file = os.path.join(landmarks_path, id + '.json')
     out_dir = os.path.join(crop_faces_out_dir, id)
-    #print(f'in_videofile {in_videofile} -> out_dir {out_dir}')
     if not os.path.isfile(json_file):
         return
     if not overwrite and os.path.isdir(out_dir):
@@ -190,8 +194,6 @@ def crop_faces_from_video(in_videofile, landmarks_path, crop_faces_out_dir, over
 
 
 def crop_faces_from_video_batch(input_filepath_list, landmarks_path, crop_faces_out_dir):
-    # print(input_filepath_list)
-    # print(landmarks_path)
     os.makedirs(crop_faces_out_dir, exist_ok=True)
     with multiprocessing.Pool(3) as pool:
         jobs = []
@@ -262,7 +264,7 @@ def crop_faces_for_datasets():
     data_path = ConfigParser.getInstance().get_celeb_df_v2_fake_path()
     input_filepath_list = glob(data_path + '/*')
     crop_faces_from_video_batch(input_filepath_list, landmarks_path, crops_path)
-    """
+
     #
     # DFDC dataset
     #
@@ -286,5 +288,3 @@ def crop_faces_for_datasets():
     landmarks_path = ConfigParser.getInstance().get_dfdc_landmarks_test_path()
     crops_path = ConfigParser.getInstance().get_dfdc_crops_test_path()
     crop_faces_from_video_batch(input_filepath_list, landmarks_path, crops_path)
-    """
-    
