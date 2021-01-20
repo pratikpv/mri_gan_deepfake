@@ -45,13 +45,6 @@ def locate_face_in_videofile(input_filepath=None, outfile_filepath=None):
         frames.append(frame)
     create_video_from_images(frames, outfile_filepath, fps=org_fps, res=org_res)
 
-
-def extract_faces_from_image(image):
-    detector = get_face_detector_model()
-    face_boxes = list(detector.detect(image, landmarks=False))[0]
-    return face_boxes
-
-
 def extract_landmarks_from_video(input_videofile, out_dir, batch_size=32, detector=None, overwrite=False):
     id = os.path.splitext(os.path.basename(input_videofile))[0]
     out_file = os.path.join(out_dir, "{}.json".format(id))

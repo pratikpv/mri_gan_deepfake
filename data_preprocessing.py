@@ -1,5 +1,4 @@
 import argparse
-from mri_gan.training import *
 from data_utils.face_mri import *
 from data_utils.face_detection import *
 
@@ -15,7 +14,7 @@ def main():
 
     if args.gen_mri_dataset:
         print(f'Generate MRI dataset')
-        generate_MRI_dataset(log_dir=ConfigParser.getInstance().get_log_dir_name())
+        generate_MRI_dataset()
 
 
 if __name__ == '__main__':
