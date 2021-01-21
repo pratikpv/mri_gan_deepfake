@@ -1,6 +1,7 @@
 import argparse
 from data_utils.face_mri import *
 from data_utils.face_detection import *
+from deep_fake_detect.features import *
 
 
 def main():
@@ -15,6 +16,14 @@ def main():
     if args.gen_mri_dataset:
         print(f'Generate MRI dataset')
         generate_MRI_dataset()
+
+    if args.gen_dfdc_mri:
+        print(f'Generate MRIs of DFDC dataset using trained MRI-GAN')
+        generate_DFDC_MRIs()
+
+    if args.gen_deepfake_metadata:
+        print(f'Generate frame label csv files')
+        generate_frame_label_csv_files()
 
 
 if __name__ == '__main__':

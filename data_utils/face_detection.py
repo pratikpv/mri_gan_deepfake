@@ -5,7 +5,7 @@ from utils import *
 from data_utils.utils import *
 import json
 import multiprocessing
-
+from tqdm import tqdm
 
 def get_face_detector_model(name='default'):
     use_cuda = torch.cuda.is_available()

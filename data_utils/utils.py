@@ -2,6 +2,7 @@ import json
 from glob import glob
 from pathlib import Path
 from utils import *
+import pandas as pd
 
 
 def create_video_from_images(images, output_video_filename, fps=30, res=(1920, 1080)):
@@ -63,17 +64,55 @@ def get_dfdc_training_video_filepaths(root_dir):
     return video_filepaths
 
 
-def print_green(text):
-    """
-    print text in green color
-    @param text: text to print
-    """
-    print('\033[32m', text, '\033[0m', sep='')
 
 
-def print_red(text):
-    """
-    print text in green color
-    @param text: text to print
-    """
-    print('\033[31m', text, '\033[0m', sep='')
+def get_training_reals_and_fakes():
+    root_dir = ConfigParser.getInstance().get_dfdc_train_data_path()
+    originals = []
+    fakes = []
+    for json_path in glob(os.path.join(root_dir, "*/metadata.json")):
+        with open(json_path, "r") as f:
+            metadata = json.load(f)
+        for k, v in metadata.items():
+            if v["label"] == "FAKE":
+                fakes.append(k)
+            else:
+                originals.append(k)
+
+    return originals, fakes
+
+
+def get_valid_reals_and_fakes():
+    labels_csv = ConfigParser.getInstance().get_valid_labels_csv_filepath()
+    df = pd.read_csv(labels_csv, index_col=0)
+    originals = list(df[df['label'] == 0].index.values)
+    fakes = list(df[df['label'] == 1].index.values)
+
+    return originals, fakes
+
+
+def get_test_reals_and_fakes():
+    labels_csv = ConfigParser.getInstance().get_test_labels_csv_filepath()
+    df = pd.read_csv(labels_csv, index_col=0)
+    originals = list(df[df['label'] == 0].index.values)
+    fakes = list(df[df['label'] == 1].index.values)
+
+    return originals, fakes
+
+
+def get_video_frame_labels_mapping(cid, originals, fakes):
+    cid_ = os.path.basename(cid)
+    if cid_ in originals:
+        crop_label = 0
+    elif cid_ in fakes:
+        crop_label = 1
+    else:
+        raise Exception('Unknown label')
+    crop_items = glob(cid + '/*')
+    df = pd.DataFrame(columns=['video_id', 'frame', 'label'])
+    for crp_itm in crop_items:
+        crp_itm_ = os.path.basename(crp_itm)
+        new_row = {'video_id': cid_, 'frame': crp_itm_, 'label': crop_label}
+        df = df.append(new_row, ignore_index=True)
+
+    return df

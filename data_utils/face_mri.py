@@ -38,7 +38,7 @@ def gen_mri(image1_path, image2_path, mri_path, res=(256, 256)):
     cv2.imwrite(mri_path, mri)
 
 
-def gen_face_mri_per_folder(real_dir=None, fake_dir=None, mri_basedir=None, overwrite=True):
+def gen_face_mri_per_folder(real_dir=None, fake_dir=None, mri_basedir=None, overwrite=False):
     dest_folder = os.path.join(mri_basedir, os.path.basename(fake_dir))
     if not overwrite and os.path.isdir(dest_folder):
         return None
@@ -149,7 +149,7 @@ def generate_MRI_dataset_from_celeb_df_v2(overwrite=True):
     results = []
     df = pd.DataFrame(columns=['real_image', 'fake_image', 'mri_image'])
 
-    with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
+    with multiprocessing.Pool(2) as pool:
         jobs = []
         for pid in tqdm(range(comb_len), desc="Scheduling jobs"):
             item = real_fake_comb[pid]
@@ -171,9 +171,9 @@ def generate_MRI_dataset_from_celeb_df_v2(overwrite=True):
 
 def generate_MRI_dataset(test_size=0.2):
     dfdc_df = generate_MRI_dataset_from_dfdc(overwrite=True)
-    celeb_v2_df = generate_MRI_dataset_from_celeb_df_v2(overwrite=True)
+    celeb_v2_df = generate_MRI_dataset_from_celeb_df_v2(overwrite=False)
     df_combined = dfdc_df.append(celeb_v2_df, ignore_index=True)
-
+    #df_combined = celeb_v2_df
 
     # convert ['real_image', 'fake_image', 'mri_image'] to ['face_image', 'mri_image']
     # where if image is real => use blank image as mri
@@ -198,3 +198,9 @@ def generate_MRI_dataset(test_size=0.2):
     train, test = train_test_split(dataset_df, test_size=test_size)
     train.to_csv(ConfigParser.getInstance().get_mri_train_dataset_csv_path())
     test.to_csv(ConfigParser.getInstance().get_mri_test_dataset_csv_path())
+    total_samples = dfr_len + dff_len
+    print(f'Fake samples {dff_len}')
+    print(f'Real samples {dfr_len}')
+    print(f'Total samples {total_samples}, real={dfr_len / total_samples}% fake={dff_len / total_samples}%')
+    print(f'Train samples {len(train)}')
+    print(f'Test samples {len(test)}')

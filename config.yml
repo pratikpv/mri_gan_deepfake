@@ -4,23 +4,17 @@ data_path:
     train: '/home/therock/data2/data_workset/deepfake_data/dfdc/train_aug_distraction'
     valid: '/home/therock/data6/dfdc_cs298project_data/valid'
     test: '/home/therock/data6/dfdc_cs298project_data/test'
-    train_backup: '/home/therock/data5/dataset_master/deepfake_dfdc/train/'
+    train_backup: '/home/therock/data5/dataset_master/deepfake_dfdc/train'
     train_labels_csv_filename: 'train_labels.csv'
     valid_labels_csv_filename: 'labels.csv'
     test_labels_csv_filename: 'labels.csv'
+    train_frame_labels_csv_filename: 'train_frame_labels.csv'
+    valid_frame_labels_csv_filename: 'valid_frame_labels.csv'
+    test_frame_labels_csv_filename: 'test_frame_labels.csv'
   celeb_df_v2:
     real: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-real'
     fake: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-synthesis'
     real_fake_mapping: 'celeb_df_v2_real_fake_mapping.json'
-  train_frame_label: 'train_frame_label.csv'
-  valid_frame_label: 'valid_frame_label.csv'
-  test_frame_label: 'test_frame_label.csv'
-  train_faces_count: 'train_faces_count.csv'
-  valid_faces_count: 'valid_faces_count.csv'
-  test_faces_count: 'test_faces_count.csv'
-  train_mriframe_label: 'train_mriframe_label.csv'
-  valid_mriframe_label: 'valid_mriframe_label.csv'
-  test_mriframe_label: 'test_mriframe_label.csv'
 features:
   dfdc:
     landmarks_path:
@@ -33,6 +27,12 @@ features:
       test: '/home/therock/data2/data_workset/deepfake_data/dfdc/crop_faces/test'
     mri_metadata_csv: 'dfdc_mri_metadata.csv'
     mri_path: '/home/therock/data2/data_workset/deepfake_data/dfdc/mri'
+    train_mrip2p_faces: '/home/therock/data2/data_workset/dfdc/mri_p2p_png/train/'
+    valid_mrip2p_faces: '/home/therock/data2/data_workset/dfdc/mri_p2p_png/valid/'
+    test_mrip2p_faces: '/home/therock/data2/data_workset/dfdc/mri_p2p_png/test/'
+    train_mriframe_label: 'train_mriframe_labels.csv'
+    valid_mriframe_label: 'valid_mriframe_labels.csv'
+    test_mriframe_label: 'test_mriframe_labels.csv'
   celeb_df_v2:
     landmarks_path:
       train: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/landmarks'
@@ -44,24 +44,26 @@ features:
   mri_dataset_test_csv: 'mri_test_dataset.csv'
   mri_dataset_csv: 'mri_dataset.csv'
   blank_png: 'blank.png'
-  MRI_GAN_weights: 'weights/MRI_GAN_weights.chkpt'
+MRI_GAN:
+  weights: 'weights/MRI_GAN_weights.chkpt'
 cnn_encoder:
   default: 'tf_efficientnet_b0_ns'
-training:
-  train_size: 1
-  valid_size: 1
-  test_size: 1
-  params:
-    model_name: 'DeepFakeDetectModel_6'
-    label_smoothing: 0.1
-    train_transform: 'simple'
-    batch_format: 'simple'
-    epochs: 20
-    learning_rate: 0.001
-    batch_size: 192
-    fp16: True
-    opt_level: 'O0'
-    dataset: 'optical'
+deep_fake:
+  training:
+    train_size: 1
+    valid_size: 1
+    test_size: 1
+    params:
+      model_name: 'DeepFakeDetectModel_6'
+      label_smoothing: 0.1
+      train_transform: 'simple'
+      batch_format: 'simple'
+      epochs: 20
+      learning_rate: 0.001
+      batch_size: 192
+      fp16: True
+      opt_level: 'O0'
+      dataset: 'optical'
 logging:
   root_log_dir: logs
   line_len: 80

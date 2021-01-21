@@ -52,14 +52,23 @@ class ConfigParser:
     def get_dfdc_backup_train_data_path(self):
         return self.config['data_path']['dfdc']['train_backup']
 
-    def get_dfdc_train_frame_label_csv_path(self):
+    def get_dfdc_train_label_csv_path(self):
         return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['train_labels_csv_filename'])
 
-    def get_dfdc_valid_frame_label_csv_path(self):
+    def get_dfdc_valid_label_csv_path(self):
         return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['valid_labels_csv_filename'])
 
-    def get_dfdc_test_frame_label_csv_path(self):
+    def get_dfdc_test_label_csv_path(self):
         return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['test_labels_csv_filename'])
+
+    def get_dfdc_train_frame_label_csv_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['train_frame_labels_csv_filename'])
+
+    def get_dfdc_valid_frame_label_csv_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['valid_frame_labels_csv_filename'])
+
+    def get_dfdc_test_frame_label_csv_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['test_frame_labels_csv_filename'])
 
     def get_celeb_df_v2_real_path(self):
         return self.config['data_path']['celeb_df_v2']['real']
@@ -87,6 +96,24 @@ class ConfigParser:
 
     def get_dfdc_crops_test_path(self):
         return self.config['features']['dfdc']['crop_faces']['test']
+
+    def get_train_mrip2p_png_data_path(self):
+        return self.config['features']['dfdc']['train_mrip2p_faces']
+
+    def get_valid_mrip2p_png_data_path(self):
+        return self.config['features']['dfdc']['valid_mrip2p_faces']
+
+    def get_test_mrip2p_png_data_path(self):
+        return self.config['features']['dfdc']['test_mrip2p_faces']
+
+    def get_train_mriframe_label_csv_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['dfdc']['train_mriframe_label'])
+
+    def get_valid_mriframe_label_csv_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['dfdc']['valid_mriframe_label'])
+
+    def get_test_mriframe_label_csv_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['dfdc']['test_mriframe_label'])
 
     def get_dfdc_mri_metadata_csv_path(self):
         return os.path.join(self.get_assets_path(),
@@ -127,19 +154,19 @@ class ConfigParser:
         return log_dir
 
     def get_training_sample_size(self):
-        return float(self.config['training']['train_size'])
+        return float(self.config['deep_fake']['training']['train_size'])
 
     def get_valid_sample_size(self):
-        return float(self.config['training']['valid_size'])
+        return float(self.config['deep_fake']['training']['valid_size'])
 
     def get_test_sample_size(self):
-        return float(self.config['training']['test_size'])
+        return float(self.config['deep_fake']['training']['test_size'])
 
     def get_checkpoint_root_path(self):
         return os.path.join(self.get_assets_path(), self.config['training']['checkpoint_path'])
 
-    def get_training_params(self):
-        return self.config['training']['params']
+    def get_deep_fake_training_params(self):
+        return self.config['deep_fake']['training']['params']
 
     def get_log_params(self):
         return self.config['logging']
@@ -153,15 +180,25 @@ class ConfigParser:
     def get_default_cnn_encoder_name(self):
         return self.config['cnn_encoder']['default']
 
+    def get_mri_gan_weight_path(self):
+        return os.path.join(self.get_assets_path(), self.config['MRI_GAN']['weights'])
 
-def print_line(print_len=None):
-    if print_len is None:
-        print('-' * ConfigParser.getInstance().config['logging']['line_len'])
+    def get_train_frame_label_csv_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['train_frame_label'])
+
+    def get_valid_frame_label_csv_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['valid_frame_label'])
+
+    def get_test_frame_label_csv_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['test_frame_label'])
+
+
+def print_line():
+    print('-' * ConfigParser.getInstance().config['logging']['line_len'])
 
 
 def print_banner():
     print_line()
-
     log_dir = ConfigParser.getInstance().get_log_dir_name()
     print(f'LOG_DIR = {log_dir}')
     print(f'PyTorch version = {torch.__version__}')
@@ -170,7 +207,21 @@ def print_banner():
     else:
         print('PyTorch No cuda-based GPU detected.')
     print(f'OpenCV version  = {cv2.__version__}')
-
     print_line()
-
     return log_dir
+
+
+def print_green(text):
+    """
+    print text in green color
+    @param text: text to print
+    """
+    print('\033[32m', text, '\033[0m', sep='')
+
+
+def print_red(text):
+    """
+    print text in green color
+    @param text: text to print
+    """
+    print('\033[31m', text, '\033[0m', sep='')
