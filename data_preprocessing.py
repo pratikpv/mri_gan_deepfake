@@ -35,5 +35,9 @@ if __name__ == '__main__':
                         help='Crop faces')
     parser.add_argument('--gen_mri_dataset', action='store_true', default=False,
                         help='Generate MRI dataset')
+    parser.add_argument('--gen_dfdc_mri', action='store_true', default=False,
+                        help='Generate MRIs of DFDC dataset using trained MRI-GAN')
+    parser.add_argument('--gen_deepfake_metadata', action='store_true', default=False,
+                        help='Generate metadata')
     args = parser.parse_args()
     main()

@@ -24,18 +24,19 @@ from sklearn.model_selection import train_test_split
 from data_utils.utils import *
 
 
-def gen_mri(image1_path, image2_path, mri_path, res=(256, 256)):
+def gen_mri(image1_path, image2_path, mri_path=None, res=(256, 256)):
     image1 = cv2.imread(image1_path, cv2.IMREAD_COLOR)
     image1 = cv2.resize(image1, res, interpolation=cv2.INTER_AREA)
     image2 = cv2.imread(image2_path, cv2.IMREAD_COLOR)
     image2 = cv2.resize(image2, res, interpolation=cv2.INTER_AREA)
 
-    d, a = structural_similarity(image1, image2, multichannel=True, full=True)
-    a = 1 - a
-    mri = (a * 255).astype(np.uint8)
-    # mri = cv2.cvtColor(mri, cv2.COLOR_BGR2GRAY)
-    # mri = cv2.cvtColor(mri, cv2.COLOR_BGR2RGB)
-    cv2.imwrite(mri_path, mri)
+    sim_index, sim = structural_similarity(image1, image2, multichannel=True, full=True,
+                                           gaussian_weights=True, use_sample_covariance=False, sigma=1.5)
+    mri = 1 - sim
+    mri = (mri * 255).astype(np.uint8)
+    if mri_path is not None:
+        cv2.imwrite(mri_path, mri)
+    return sim_index
 
 
 def gen_face_mri_per_folder(real_dir=None, fake_dir=None, mri_basedir=None, overwrite=False):
@@ -173,7 +174,7 @@ def generate_MRI_dataset(test_size=0.2):
     dfdc_df = generate_MRI_dataset_from_dfdc(overwrite=True)
     celeb_v2_df = generate_MRI_dataset_from_celeb_df_v2(overwrite=False)
     df_combined = dfdc_df.append(celeb_v2_df, ignore_index=True)
-    #df_combined = celeb_v2_df
+    # df_combined = celeb_v2_df
 
     # convert ['real_image', 'fake_image', 'mri_image'] to ['face_image', 'mri_image']
     # where if image is real => use blank image as mri
