@@ -50,8 +50,10 @@ features:
   ffhq:
     json_filename: '/home/therock/data2/data_workset/deepfake_data/ffhq/ffhq.json'
     crops_path: '/home/therock/data2/data_workset/deepfake_data/ffhq/images1024x1024_crops'
-  mri_dataset_train_csv: 'mri_train_dataset.csv'
-  mri_dataset_test_csv: 'mri_test_dataset.csv'
+  mri_dataset_real_train_csv: 'mri_real_train_dataset.csv'
+  mri_dataset_fake_train_csv: 'mri_fake_train_dataset.csv'
+  mri_dataset_real_test_csv: 'mri_real_test_dataset.csv'
+  mri_dataset_fake_test_csv: 'mri_fake_test_dataset.csv'
   mri_dataset_csv: 'mri_dataset.csv'
   blank_png: 'blank.png'
 MRI_GAN:

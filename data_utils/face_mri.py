@@ -186,6 +186,7 @@ def generate_MRI_dataset(test_size=0.2):
     dff['mri_image'] = df_combined['mri_image']
     dff_len = len(dff)
     dff['class'][0:dff_len] = 'fake'
+    dff = dff.set_index('face_image')
 
     dfr_base = pd.DataFrame(columns=['face_image', 'mri_image', 'class'])
     dfr_base['face_image'] = df_combined['real_image'].unique()
@@ -208,17 +209,23 @@ def generate_MRI_dataset(test_size=0.2):
     dfr_others['class'] = 'real'
     dfr = pd.concat([dfr_base, dfr_others])
     dfr_len = len(dfr)
+    dfr = dfr.set_index('face_image')
 
-    dataset_df = pd.concat([dff, dfr])
-    dataset_df = dataset_df.set_index('face_image')
+    real_train, real_test = train_test_split(dfr, test_size=test_size)
+    real_train.to_csv(ConfigParser.getInstance().get_mri_train_real_dataset_csv_path())
+    real_test.to_csv(ConfigParser.getInstance().get_mri_test_real_dataset_csv_path())
 
-    dataset_df.to_csv(ConfigParser.getInstance().get_mri_dataset_csv_path())
-    train, test = train_test_split(dataset_df, test_size=test_size)
-    train.to_csv(ConfigParser.getInstance().get_mri_train_dataset_csv_path())
-    test.to_csv(ConfigParser.getInstance().get_mri_test_dataset_csv_path())
+    fake_train, fake_test = train_test_split(dff, test_size=test_size)
+    fake_train.to_csv(ConfigParser.getInstance().get_mri_train_fake_dataset_csv_path())
+    fake_test.to_csv(ConfigParser.getInstance().get_mri_test_fake_dataset_csv_path())
+
     total_samples = dfr_len + dff_len
-    print(f'Fake samples {dff_len}')
-    print(f'Real samples {dfr_len}')
-    print(f'Total samples {total_samples}, real={round(dfr_len / total_samples, 2)}% fake={round(dff_len / total_samples, 2)}%')
-    print(f'Train samples {len(train)}')
-    print(f'Test samples {len(test)}')
+
+    print(f'Total Fake samples {dff_len}')
+    print(f'Total Real samples {dfr_len}')
+    print(f'Fake Train samples {len(fake_train)}')
+    print(f'Real Train samples {len(real_train)}')
+    print(f'Fake Test samples {len(fake_test)}')
+    print(f'Real Test samples {len(real_test)}')
+    print(
+        f'Total samples {total_samples}, real={round(dfr_len / total_samples, 2)}% fake={round(dff_len / total_samples, 2)}%')

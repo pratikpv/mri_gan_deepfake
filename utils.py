@@ -135,13 +135,21 @@ class ConfigParser:
     def get_celeb_df_v2_mri_path(self):
         return self.config['features']['celeb_df_v2']['mri_path']
 
-    def get_mri_train_dataset_csv_path(self):
+    def get_mri_train_real_dataset_csv_path(self):
         return os.path.join(self.get_assets_path(),
-                            self.config['features']['mri_dataset_train_csv'])
+                            self.config['features']['mri_dataset_real_train_csv'])
 
-    def get_mri_test_dataset_csv_path(self):
+    def get_mri_train_fake_dataset_csv_path(self):
         return os.path.join(self.get_assets_path(),
-                            self.config['features']['mri_dataset_test_csv'])
+                            self.config['features']['mri_dataset_fake_train_csv'])
+
+    def get_mri_test_real_dataset_csv_path(self):
+        return os.path.join(self.get_assets_path(),
+                            self.config['features']['mri_dataset_real_test_csv'])
+
+    def get_mri_test_fake_dataset_csv_path(self):
+        return os.path.join(self.get_assets_path(),
+                            self.config['features']['mri_dataset_fake_test_csv'])
 
     def get_mri_dataset_csv_path(self):
         return os.path.join(self.get_assets_path(),

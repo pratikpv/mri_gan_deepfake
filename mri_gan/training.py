@@ -17,6 +17,7 @@ from skimage.metrics import structural_similarity
 from mri_gan.model import *
 from mri_gan.dataset import *
 
+
 def save_ssim_report(epoch, batch_num, imgs, generator, device, ssim_score_file):
     imgs_len = imgs["A"].shape[0]
     real_A = imgs["A"].to(device)
@@ -62,28 +63,8 @@ def train_MRI_GAN_model(log_dir=None, train_resume_dir=None):
     train_transforms = torchvision.transforms.Compose([
         transforms.Resize((model_params['imsize'], model_params['imsize'])),
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-
-    print(f'Creating data-loaders')
-    train_dataset = MRIDataset(mode='train', transforms=train_transforms)
-    test_dataset = MRIDataset(mode='test', transforms=train_transforms)
-
-    #num_workers = multiprocessing.cpu_count() - 2
-    num_workers = 0
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_size=model_params['batch_size'],
-        shuffle=True,
-        num_workers=num_workers,
-    )
-
-    test_dataloader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers,
-    )
 
     # Loss functions
     criterion_GAN = torch.nn.MSELoss().to(device)
@@ -96,7 +77,7 @@ def train_MRI_GAN_model(log_dir=None, train_resume_dir=None):
     generator = GeneratorUNet().to(device)
     discriminator = Discriminator().to(device)
 
-    print(discriminator)
+    # print(discriminator)
     # Optimizers
     optimizer_G = torch.optim.Adam(generator.parameters(), lr=lr, betas=(b1, b2))
     optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=lr, betas=(b1, b2))
@@ -127,14 +108,38 @@ def train_MRI_GAN_model(log_dir=None, train_resume_dir=None):
     prev_time = time.time()
 
     losses = []
+    n_epochs = 1
     for e in range(n_epochs):
         if e < start_epoch:
             print(f"Skipping epoch {e}")
             continue
+
+        # we are creating dataloader at each epoch as we want to sample new fake image randomly
+        # as each epoch. We have
+        print(f'Creating data-loaders')
+        train_dataset = MRIDataset(mode='train', transforms=train_transforms)
+        test_dataset = MRIDataset(mode='test', transforms=train_transforms)
+
+        num_workers = multiprocessing.cpu_count() - 2
+        # num_workers = 0
+        train_dataloader = DataLoader(
+            train_dataset,
+            batch_size=model_params['batch_size'],
+            shuffle=True,
+            num_workers=num_workers,
+        )
+
+        test_dataloader = DataLoader(
+            test_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=num_workers,
+        )
+
         for i, batch in enumerate(train_dataloader):
             # Model inputs
-            # generator.train()
-            # discriminator.train()
+            generator.train()
+            discriminator.train()
             real_A = batch["A"].to(device)
             real_B = batch["B"].to(device)
 
@@ -150,7 +155,6 @@ def train_MRI_GAN_model(log_dir=None, train_resume_dir=None):
             # GAN loss
             fake_B = generator(real_A)
             pred_fake = discriminator(fake_B, real_A)
-            print(f'pred_fake shape {pred_fake.shape}')
             loss_GAN = criterion_GAN(pred_fake, valid)
             # Pixel-wise loss
             loss_pixel = criterion_pixelwise(fake_B, real_B)
@@ -197,10 +201,10 @@ def train_MRI_GAN_model(log_dir=None, train_resume_dir=None):
                 % (batches_done, e, n_epochs, i, len(train_dataloader), loss_D.item(), loss_G.item(),
                    loss_pixel.item(), loss_GAN.item(), time_left))
             losses.append([(e, i, batches_done, loss_D.item(), loss_G.item(), loss_pixel.item(), loss_GAN.item())])
-            if batches_done % 200 == 0:
+            if batches_done % 10 == 0:
                 try:
                     print(f'\nGenerating samples at {generated_samples_path}')
-                    # generator.eval()
+                    generator.eval()
                     imgs = next(iter(test_dataloader))
                     # imgs = imgs, test_sample_size, replace=False)
                     rand_start = random.randint(0, batch_size - test_sample_size)
