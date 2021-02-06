@@ -184,13 +184,31 @@ class ConfigParser:
         return os.path.join(self.get_assets_path(), self.config['MRI_GAN']['weights'])
 
     def get_train_frame_label_csv_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['train_frame_label'])
+        return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['train_frame_labels_csv_filename'])
 
     def get_valid_frame_label_csv_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['valid_frame_label'])
+        return os.path.join(self.get_assets_path(), self.config['data_path']['valid_frame_labels_csv_filename'])
 
     def get_test_frame_label_csv_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['test_frame_label'])
+        return os.path.join(self.get_assets_path(), self.config['data_path']['test_frame_labels_csv_filename'])
+
+    def get_fdf_data_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['fdf']['data_path'])
+
+    def get_fdf_json_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['fdf']['json_filename'])
+
+    def get_fdf_crops_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['fdf']['crops_path'])
+
+    def get_ffhq_data_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['ffhq']['data_path'])
+
+    def get_ffhq_json_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['ffhq']['json_filename'])
+
+    def get_ffhq_crops_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['ffhq']['crops_path'])
 
 
 def print_line():

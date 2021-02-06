@@ -150,7 +150,7 @@ def generate_MRI_dataset_from_celeb_df_v2(overwrite=True):
     results = []
     df = pd.DataFrame(columns=['real_image', 'fake_image', 'mri_image'])
 
-    with multiprocessing.Pool(2) as pool:
+    with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
         jobs = []
         for pid in tqdm(range(comb_len), desc="Scheduling jobs"):
             item = real_fake_comb[pid]
@@ -171,10 +171,11 @@ def generate_MRI_dataset_from_celeb_df_v2(overwrite=True):
 
 
 def generate_MRI_dataset(test_size=0.2):
-    dfdc_df = generate_MRI_dataset_from_dfdc(overwrite=True)
+    print(f'\t generating DFDC MRI dataset')
+    dfdc_df = generate_MRI_dataset_from_dfdc(overwrite=False)
+    print(f'\t generating celeb-df-v2 MRI dataset')
     celeb_v2_df = generate_MRI_dataset_from_celeb_df_v2(overwrite=False)
     df_combined = dfdc_df.append(celeb_v2_df, ignore_index=True)
-    # df_combined = celeb_v2_df
 
     # convert ['real_image', 'fake_image', 'mri_image'] to ['face_image', 'mri_image']
     # where if image is real => use blank image as mri
@@ -186,11 +187,27 @@ def generate_MRI_dataset(test_size=0.2):
     dff_len = len(dff)
     dff['class'][0:dff_len] = 'fake'
 
-    dfr = pd.DataFrame(columns=['face_image', 'mri_image', 'class'])
-    dfr['face_image'] = df_combined['real_image'].unique()
-    dfr['mri_image'] = os.path.abspath(ConfigParser.getInstance().get_blank_imagepath())
+    dfr_base = pd.DataFrame(columns=['face_image', 'mri_image', 'class'])
+    dfr_base['face_image'] = df_combined['real_image'].unique()
+    dfr_base['mri_image'] = os.path.abspath(ConfigParser.getInstance().get_blank_imagepath())
+    dfr_base_len = len(dfr_base)
+    dfr_base['class'][0:dfr_base_len] = 'real'
+
+    print(f'\t generating other real MRI dataset')
+    other_real_crops_paths = [ConfigParser.getInstance().get_fdf_crops_path(),
+                              ConfigParser.getInstance().get_ffhq_crops_path()]
+
+    other_real_samples = list()
+
+    for r in other_real_crops_paths:
+        other_real_samples.extend(glob(r + '/*'))
+
+    dfr_others = pd.DataFrame(columns=['face_image', 'mri_image', 'class'])
+    dfr_others['face_image'] = other_real_samples
+    dfr_others['mri_image'] = os.path.abspath(ConfigParser.getInstance().get_blank_imagepath())
+    dfr_others['class'] = 'real'
+    dfr = pd.concat([dfr_base, dfr_others])
     dfr_len = len(dfr)
-    dfr['class'][0:dfr_len] = 'real'
 
     dataset_df = pd.concat([dff, dfr])
     dataset_df = dataset_df.set_index('face_image')
@@ -202,6 +219,6 @@ def generate_MRI_dataset(test_size=0.2):
     total_samples = dfr_len + dff_len
     print(f'Fake samples {dff_len}')
     print(f'Real samples {dfr_len}')
-    print(f'Total samples {total_samples}, real={dfr_len / total_samples}% fake={dff_len / total_samples}%')
+    print(f'Total samples {total_samples}, real={round(dfr_len / total_samples, 2)}% fake={round(dff_len / total_samples, 2)}%')
     print(f'Train samples {len(train)}')
     print(f'Test samples {len(test)}')

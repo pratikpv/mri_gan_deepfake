@@ -69,8 +69,8 @@ def train_MRI_GAN_model(log_dir=None, train_resume_dir=None):
     train_dataset = MRIDataset(mode='train', transforms=train_transforms)
     test_dataset = MRIDataset(mode='test', transforms=train_transforms)
 
-    num_workers = multiprocessing.cpu_count() - 2
-
+    #num_workers = multiprocessing.cpu_count() - 2
+    num_workers = 0
     train_dataloader = DataLoader(
         train_dataset,
         batch_size=model_params['batch_size'],
@@ -96,6 +96,7 @@ def train_MRI_GAN_model(log_dir=None, train_resume_dir=None):
     generator = GeneratorUNet().to(device)
     discriminator = Discriminator().to(device)
 
+    print(discriminator)
     # Optimizers
     optimizer_G = torch.optim.Adam(generator.parameters(), lr=lr, betas=(b1, b2))
     optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=lr, betas=(b1, b2))
@@ -149,6 +150,7 @@ def train_MRI_GAN_model(log_dir=None, train_resume_dir=None):
             # GAN loss
             fake_B = generator(real_A)
             pred_fake = discriminator(fake_B, real_A)
+            print(f'pred_fake shape {pred_fake.shape}')
             loss_GAN = criterion_GAN(pred_fake, valid)
             # Pixel-wise loss
             loss_pixel = criterion_pixelwise(fake_B, real_B)

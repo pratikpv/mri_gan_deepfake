@@ -75,3 +75,5 @@ class DFDCDatasetSimple(Dataset):
             except Exception:
                 # print(f"bad {os.path.join(self.crops_dir, str(item['video_id']), item['frame'])}")
                 index = random.randint(0, self.data_len)
+
+

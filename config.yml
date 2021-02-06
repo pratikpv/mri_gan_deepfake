@@ -1,7 +1,7 @@
 assets: 'assets'
 data_path:
   dfdc:
-    train: '/home/therock/data2/data_workset/deepfake_data/dfdc/train_aug_distraction'
+    train: '/home/therock/data5/dataset_master1/deepfake_dfdc/workset_project/train_aug_distraction'
     valid: '/home/therock/data6/dfdc_cs298project_data/valid'
     test: '/home/therock/data6/dfdc_cs298project_data/test'
     train_backup: '/home/therock/data5/dataset_master/deepfake_dfdc/train'
@@ -15,6 +15,10 @@ data_path:
     real: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-real'
     fake: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-synthesis'
     real_fake_mapping: 'celeb_df_v2_real_fake_mapping.json'
+  fdf:
+    data_path: '/home/therock/data2/data_workset/deepfake_data/fdf/cc-by-nc-sa-2/128'
+  ffhq:
+    data_path: '/home/therock/data2/data_workset/deepfake_data/ffhq/images1024x1024'
 features:
   dfdc:
     landmarks_path:
@@ -40,6 +44,12 @@ features:
       train: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/crop_faces/train'
     mri_metadata_csv: 'celeb_df_v2_mri_metadata.csv'
     mri_path: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/mri'
+  fdf:
+    json_filename: '/home/therock/data2/data_workset/deepfake_data/fdf/cc-by-nc-sa-2/fdf.json'
+    crops_path: '/home/therock/data2/data_workset/deepfake_data/fdf/cc-by-nc-sa-2/128_crops'
+  ffhq:
+    json_filename: '/home/therock/data2/data_workset/deepfake_data/ffhq/ffhq.json'
+    crops_path: '/home/therock/data2/data_workset/deepfake_data/ffhq/images1024x1024_crops'
   mri_dataset_train_csv: 'mri_train_dataset.csv'
   mri_dataset_test_csv: 'mri_test_dataset.csv'
   mri_dataset_csv: 'mri_dataset.csv'
