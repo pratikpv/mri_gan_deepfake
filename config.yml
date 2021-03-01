@@ -1,10 +1,9 @@
 assets: 'assets'
 data_path:
   dfdc:
-    train: '/home/therock/data5/dataset_master1/deepfake_dfdc/workset_project/train_aug_distraction'
-    valid: '/home/therock/data6/dfdc_cs298project_data/valid'
-    test: '/home/therock/data6/dfdc_cs298project_data/test'
-    train_backup: '/home/therock/data5/dataset_master/deepfake_dfdc/train'
+    train: '/home/therock/seagate_iron_wolf_5/dataset_master1/deepfake_dfdc/workset_project/train_aug_distraction'
+    valid: '/home/therock/seagate_iron_wolf_5/dataset_master1/deepfake_dfdc/org/zipped/valid/data'
+    test: '/home/therock/seagate_iron_wolf_5/dataset_master1/deepfake_dfdc/org/zipped/test/data'
     train_labels_csv_filename: 'train_labels.csv'
     valid_labels_csv_filename: 'labels.csv'
     test_labels_csv_filename: 'labels.csv'
@@ -31,9 +30,9 @@ features:
       test: '/home/therock/data2/data_workset/deepfake_data/dfdc/crop_faces/test'
     mri_metadata_csv: 'dfdc_mri_metadata.csv'
     mri_path: '/home/therock/data2/data_workset/deepfake_data/dfdc/mri'
-    train_mrip2p_faces: '/home/therock/data2/data_workset/dfdc/mri_p2p_png/train/'
-    valid_mrip2p_faces: '/home/therock/data2/data_workset/dfdc/mri_p2p_png/valid/'
-    test_mrip2p_faces: '/home/therock/data2/data_workset/dfdc/mri_p2p_png/test/'
+    train_mrip2p_faces: '/home/therock/data2/data_workset/deepfake_data/dfdc/mri_to_detect/train/'
+    valid_mrip2p_faces: '/home/therock/data2/data_workset/deepfake_data/dfdc/mri_to_detect/valid/'
+    test_mrip2p_faces: '/home/therock/data2/data_workset/deepfake_data/dfdc/mri_to_detect/test/'
     train_mriframe_label: 'train_mriframe_labels.csv'
     valid_mriframe_label: 'valid_mriframe_labels.csv'
     test_mriframe_label: 'test_mriframe_labels.csv'
@@ -58,6 +57,23 @@ features:
   blank_png: 'blank.png'
 MRI_GAN:
   weights: 'weights/MRI_GAN_weights.chkpt'
+  model_params:
+    n_epochs: 100
+    batch_size: 128
+    lambda_pixel: 100
+    b1: 0.5
+    b2: 0.999
+    lr: 0.0002
+    tau: 0.3
+    imsize: 256
+    model_name: 'MRI_GAN'
+    test_sample_size: 16
+    chkpt_freq: 500
+    sample_gen_freq: 200
+    frac: 1 # fraction of data to use (with respect to real data)
+    losses_file: 'losses.pkl'
+    metadata_file: 'mri_metadata.pkl'
+    ssim_report_file: 'ssim_report_file.pkl'
 cnn_encoder:
   default: 'tf_efficientnet_b0_ns'
 deep_fake:
@@ -65,17 +81,17 @@ deep_fake:
     train_size: 1
     valid_size: 1
     test_size: 1
-    params:
-      model_name: 'DeepFakeDetectModel_6'
+    model_params:
+      model_name: 'DeepFakeDetectModel'
       label_smoothing: 0.1
-      train_transform: 'simple'
+      train_transform: 'simple' # simple or complex
       batch_format: 'simple'
       epochs: 20
       learning_rate: 0.001
       batch_size: 192
       fp16: True
       opt_level: 'O0'
-      dataset: 'optical'
+      dataset: 'mri'
 logging:
   root_log_dir: logs
   line_len: 80

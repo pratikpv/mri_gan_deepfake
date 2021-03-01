@@ -10,7 +10,7 @@ from PIL import Image
 
 
 class MRIDataset(Dataset):
-    def __init__(self, transforms=None, mode="train"):
+    def __init__(self, transforms=None, mode="train", frac=1.0):
         self.transforms = transforms
 
         if mode == "train":
@@ -23,6 +23,8 @@ class MRIDataset(Dataset):
             raise Exception("Unknown mode")
 
         self.real_df = pd.read_csv(self.real_data_csv)
+        if frac < 1.0:
+            self.real_df = self.real_df.sample(frac=frac).reset_index(drop=True)
         self.real_df_len = len(self.real_df)
         self.fake_df = pd.read_csv(self.fake_data_csv)
         # our dataset if skewed. we have lesser real samples and more fake :)
@@ -35,12 +37,11 @@ class MRIDataset(Dataset):
         self.data_dict = self.df.to_dict(orient='records')
         self.df_len = len(self.df)
 
-
-        print(f'real ={len(self.fake_df_trimmed)}')
-        print(f'fake ={len(self.real_df)}')
-        print(f'df_len ={self.df_len}')
-
-        self.df.to_csv('{}_epoch.csv'.format(mode))
+        # print(mode)
+        # print(f'real ={len(self.fake_df_trimmed)}')
+        # print(f'fake ={len(self.real_df)}')
+        # print(f'df_len ={self.df_len}')
+        # self.df.to_csv('{}_epoch.csv'.format(mode))
 
     def __getitem__(self, index):
         while True:

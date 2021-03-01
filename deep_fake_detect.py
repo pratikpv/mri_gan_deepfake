@@ -8,7 +8,8 @@ from deep_fake_detect.testing import *
 def test_saved_model(model_path, model_kind):
     print(f'Loading saved model {model_path} to test')
     check_point_dict = torch.load(model_path)
-    model = get_model(check_point_dict['model_params'])
+    model_params = check_point_dict['model_params']
+    model = DeepFakeDetectModel(frame_dim=model_params['imsize'], encoder_name=model_params['encoder_name'])
     model.load_state_dict(check_point_dict['model_state_dict'])
     if check_point_dict['criterion'] == 'BCEWithLogitsLoss':
         criterion = nn.BCEWithLogitsLoss()

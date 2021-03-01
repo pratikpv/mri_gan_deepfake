@@ -37,6 +37,12 @@ class ConfigParser:
     def copy_config(self, dest):
         shutil.copy(self.config_file, dest)
 
+    def get_log_dir_name(self, create_logdir=True):
+        log_dir = os.path.join(self.config['logging']['root_log_dir'], self.init_time_str)
+        if create_logdir:
+            os.makedirs(log_dir, exist_ok=True)
+        return log_dir
+
     def get_assets_path(self):
         return self.config['assets']
 
@@ -49,17 +55,16 @@ class ConfigParser:
     def get_dfdc_test_data_path(self):
         return self.config['data_path']['dfdc']['test']
 
-    def get_dfdc_backup_train_data_path(self):
-        return self.config['data_path']['dfdc']['train_backup']
-
     def get_dfdc_train_label_csv_path(self):
         return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['train_labels_csv_filename'])
 
     def get_dfdc_valid_label_csv_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['valid_labels_csv_filename'])
+        return os.path.join(self.get_dfdc_valid_data_path(),
+                            self.config['data_path']['dfdc']['valid_labels_csv_filename'])
 
     def get_dfdc_test_label_csv_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['test_labels_csv_filename'])
+        return os.path.join(self.get_dfdc_test_data_path(),
+                            self.config['data_path']['dfdc']['test_labels_csv_filename'])
 
     def get_dfdc_train_frame_label_csv_path(self):
         return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['train_frame_labels_csv_filename'])
@@ -78,6 +83,12 @@ class ConfigParser:
 
     def get_celeb_df_v2_real_fake_mapping_json(self):
         return os.path.join(self.get_assets_path(), self.config['data_path']['celeb_df_v2']['real_fake_mapping'])
+
+    def get_fdf_data_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['fdf']['data_path'])
+
+    def get_ffhq_data_path(self):
+        return os.path.join(self.get_assets_path(), self.config['data_path']['ffhq']['data_path'])
 
     def get_dfdc_landmarks_train_path(self):
         return self.config['features']['dfdc']['landmarks_path']['train']
@@ -135,6 +146,18 @@ class ConfigParser:
     def get_celeb_df_v2_mri_path(self):
         return self.config['features']['celeb_df_v2']['mri_path']
 
+    def get_fdf_json_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['fdf']['json_filename'])
+
+    def get_fdf_crops_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['fdf']['crops_path'])
+
+    def get_fdf_json_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['ffhq']['json_filename'])
+
+    def get_fdf_crops_path(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['ffhq']['crops_path'])
+
     def get_mri_train_real_dataset_csv_path(self):
         return os.path.join(self.get_assets_path(),
                             self.config['features']['mri_dataset_real_train_csv'])
@@ -155,11 +178,17 @@ class ConfigParser:
         return os.path.join(self.get_assets_path(),
                             self.config['features']['mri_dataset_csv'])
 
-    def get_log_dir_name(self, create_logdir=True):
-        log_dir = os.path.join(self.config['logging']['root_log_dir'], self.init_time_str)
-        if create_logdir:
-            os.makedirs(log_dir, exist_ok=True)
-        return log_dir
+    def get_blank_imagepath(self):
+        return os.path.join(self.get_assets_path(), self.config['features']['blank_png'])
+
+    def get_mri_gan_weight_path(self):
+        return os.path.join(self.get_assets_path(), self.config['MRI_GAN']['weights'])
+
+    def get_mri_gan_model_params(self):
+        return self.config['MRI_GAN']['model_params']
+
+    def get_default_cnn_encoder_name(self):
+        return self.config['cnn_encoder']['default']
 
     def get_training_sample_size(self):
         return float(self.config['deep_fake']['training']['train_size'])
@@ -170,53 +199,14 @@ class ConfigParser:
     def get_test_sample_size(self):
         return float(self.config['deep_fake']['training']['test_size'])
 
-    def get_checkpoint_root_path(self):
-        return os.path.join(self.get_assets_path(), self.config['training']['checkpoint_path'])
-
     def get_deep_fake_training_params(self):
-        return self.config['deep_fake']['training']['params']
+        return self.config['deep_fake']['training']['model_params']
 
     def get_log_params(self):
         return self.config['logging']
 
     def create_placeholders(self):
         os.makedirs(self.get_assets_path(), exist_ok=True)
-
-    def get_blank_imagepath(self):
-        return os.path.join(self.get_assets_path(), self.config['features']['blank_png'])
-
-    def get_default_cnn_encoder_name(self):
-        return self.config['cnn_encoder']['default']
-
-    def get_mri_gan_weight_path(self):
-        return os.path.join(self.get_assets_path(), self.config['MRI_GAN']['weights'])
-
-    def get_train_frame_label_csv_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['train_frame_labels_csv_filename'])
-
-    def get_valid_frame_label_csv_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['valid_frame_labels_csv_filename'])
-
-    def get_test_frame_label_csv_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['test_frame_labels_csv_filename'])
-
-    def get_fdf_data_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['fdf']['data_path'])
-
-    def get_fdf_json_path(self):
-        return os.path.join(self.get_assets_path(), self.config['features']['fdf']['json_filename'])
-
-    def get_fdf_crops_path(self):
-        return os.path.join(self.get_assets_path(), self.config['features']['fdf']['crops_path'])
-
-    def get_ffhq_data_path(self):
-        return os.path.join(self.get_assets_path(), self.config['data_path']['ffhq']['data_path'])
-
-    def get_ffhq_json_path(self):
-        return os.path.join(self.get_assets_path(), self.config['features']['ffhq']['json_filename'])
-
-    def get_ffhq_crops_path(self):
-        return os.path.join(self.get_assets_path(), self.config['features']['ffhq']['crops_path'])
 
 
 def print_line():

@@ -24,14 +24,19 @@ from sklearn.model_selection import train_test_split
 from data_utils.utils import *
 
 
+def get_structural_similarity(image1, image2):
+    return structural_similarity(image1, image2, multichannel=True, full=True,
+                                 gaussian_weights=True, use_sample_covariance=False, sigma=1.5)
+
+
 def gen_mri(image1_path, image2_path, mri_path=None, res=(256, 256)):
     image1 = cv2.imread(image1_path, cv2.IMREAD_COLOR)
     image1 = cv2.resize(image1, res, interpolation=cv2.INTER_AREA)
     image2 = cv2.imread(image2_path, cv2.IMREAD_COLOR)
     image2 = cv2.resize(image2, res, interpolation=cv2.INTER_AREA)
 
-    sim_index, sim = structural_similarity(image1, image2, multichannel=True, full=True,
-                                           gaussian_weights=True, use_sample_covariance=False, sigma=1.5)
+    sim_index, sim = get_structural_similarity(image1, image2)
+
     mri = 1 - sim
     mri = (mri * 255).astype(np.uint8)
     if mri_path is not None:
@@ -170,9 +175,15 @@ def generate_MRI_dataset_from_celeb_df_v2(overwrite=True):
     return df
 
 
-def generate_MRI_dataset(test_size=0.2):
+def generate_MRI_dataset(test_size=0.2, dfdc_fract=0.5):
     print(f'\t generating DFDC MRI dataset')
     dfdc_df = generate_MRI_dataset_from_dfdc(overwrite=False)
+    # take dfdc_fract % of samples from DFDC dataset to train the MRI GAN.
+    # print(f'before trunc len dfdc_df = {len(dfdc_df)}')
+    if dfdc_fract < 1.0:
+        dfdc_df, _ = train_test_split(dfdc_df, train_size=dfdc_fract)
+    # print(f'after trunc len dfdc_df = {len(dfdc_df)}')
+
     print(f'\t generating celeb-df-v2 MRI dataset')
     celeb_v2_df = generate_MRI_dataset_from_celeb_df_v2(overwrite=False)
     df_combined = dfdc_df.append(celeb_v2_df, ignore_index=True)
@@ -182,7 +193,7 @@ def generate_MRI_dataset(test_size=0.2):
     #       else use the mri(real_image, fake_image)
 
     dff = pd.DataFrame(columns=['face_image', 'mri_image', 'class'])
-    dff['face_image'] = df_combined['fake_image']
+    dff['face_image'] = df_combined['fake_image'].unique()
     dff['mri_image'] = df_combined['mri_image']
     dff_len = len(dff)
     dff['class'][0:dff_len] = 'fake'

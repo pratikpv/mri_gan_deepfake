@@ -18,19 +18,15 @@ from deep_fake_detect.utils import *
 from deep_fake_detect.datasets import *
 import random
 from tqdm import tqdm
-
+from deep_fake_detect.DeepFakeDetectModel import *
 cv2.setNumThreads(0)
 
 
 def train_model(log_dir=None, train_resume_checkpoint=None):
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
-    model_params = ConfigParser.getInstance().get_training_params()
+    model_params = ConfigParser.getInstance().get_deep_fake_training_params()
 
-    #
-    # model_params['batch_format'] = 'stacked' -> generates batches as below
-    # batch_size x number_of_frames_stacked x color_channel x frame_height x frame-width
-    # in which number_of_frames_stacked is Y number of frames stacked. Y can be configured with max_num_frames
     #
     # model_params['batch_format'] = 'simple' -> generates batches as below
     # batch_size x color_channel x frame_height x frame-width
@@ -98,7 +94,7 @@ def train_model(log_dir=None, train_resume_checkpoint=None):
                               shuffle=True, pin_memory=True)
 
     print(f"Batch_size {model_params['batch_size']}")
-    model = get_model(model_params).to(device)
+    model = DeepFakeDetectModel(frame_dim=model_params['imsize'], encoder_name=model_params['encoder_name'])    .to(device)
     criterion = nn.BCEWithLogitsLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=model_params['learning_rate'])
 
@@ -288,17 +284,9 @@ def train_epoch(epoch=None, model=None, criterion=None, optimizer=None, data_loa
         # prepare data before passing to model
         optimizer.zero_grad()
 
-        if model_params['batch_format'] == 'stacked':
-            batch_size = len(samples[0])
-            frames_ = samples[1]
-            frames = torch.stack(frames_).to(device)
-            labels = torch.stack(samples[2]).to(device).unsqueeze(1)
-        elif model_params['batch_format'] == 'simple':
-            frames = samples['frame_tensor'].to(device)
-            labels = samples['label'].to(device).unsqueeze(1)
-            batch_size = labels.shape[0]
-        else:
-            raise Exception("model_params['batch_format'] not supported")
+        frames = samples['frame_tensor'].to(device)
+        labels = samples['label'].to(device).unsqueeze(1)
+        batch_size = labels.shape[0]
 
         output = model(frames)
         labels = labels.type_as(output)
@@ -386,20 +374,12 @@ def valid_epoch(epoch=None, model=None, criterion=None, data_loader=None, batch_
     with torch.no_grad():
         for batch_id, samples in enumerate(valid_data_iter):
             # prepare data before passing to model
-            if model_params['batch_format'] == 'stacked':
-                batch_size = len(samples[0])
-                all_filenames.extend(samples[0])
-                frames_ = samples[1]
-                frames = torch.stack(frames_).to(device)
-                labels = torch.stack(samples[2]).to(device).unsqueeze(1)
-            elif model_params['batch_format'] == 'simple':
-                frames = samples['frame_tensor'].to(device)
-                labels = samples['label'].to(device).unsqueeze(1)
-                batch_size = labels.shape[0]
-                for i in range(batch_size):
-                    all_filenames.append(str(samples['video_id'][i].item()) + '__' + str(samples['frame'][i]))
-            else:
-                raise Exception("model_params['batch_format'] not supported")
+
+            frames = samples['frame_tensor'].to(device)
+            labels = samples['label'].to(device).unsqueeze(1)
+            batch_size = labels.shape[0]
+            for i in range(batch_size):
+                all_filenames.append(str(samples['video_id'][i].item()) + '__' + str(samples['frame'][i]))
 
             output = model(frames)
             labels = labels.type_as(output)

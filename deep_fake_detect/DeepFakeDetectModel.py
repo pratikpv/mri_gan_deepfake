@@ -1,13 +1,14 @@
+from deep_fake_detect.utils import *
 import torch
 import torch.nn as nn
 from utils import *
 from data_utils.utils import *
 import torch.nn as nn
-from deep_fake_detect.utils import *
 import torch.nn.functional as F
 from deep_fake_detect.features import *
 
-class DeepFakeDetectModel_6(nn.Module):
+
+class DeepFakeDetectModel(nn.Module):
     """
     This is simple model which takes in each frame of video independently and classified them.
     Later the entire video is classified based upon heuristics, which is not done by this model.
@@ -21,7 +22,7 @@ class DeepFakeDetectModel_6(nn.Module):
       valid_size: 1
       test_size: 1
       params:
-        model_name: 'DeepFakeDetectModel_6'
+        model_name: 'DeepFakeDetectModel'
         label_smoothing: 0.1 # 0 to disable this, or any value less than 1
         train_transform: ['simple', 'complex'] # choose either of the data augmentation
         batch_format: 'simple' # Do not change
@@ -39,8 +40,8 @@ class DeepFakeDetectModel_6(nn.Module):
 
         self.image_dim = frame_dim
         self.num_of_classes = 1
-        self.encoder = encoder_params[encoder_name]["init_op"]()
-        self.encoder_flat_feature_dim = encoder_params[encoder_name]["flat_features_dim"]
+        self.encoder = get_encoder(encoder_name)
+        self.encoder_flat_feature_dim, _ = get_encoder_params(encoder_name)
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
 
         self.classifier = nn.Sequential(

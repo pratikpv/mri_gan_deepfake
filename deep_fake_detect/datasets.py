@@ -16,7 +16,7 @@ class DFDCDatasetSimple(Dataset):
         self.label_smoothing = 0  # use only in training, so update to param passed in train mode
         if mode == 'train':
             if dataset == 'plain':
-                self.labels_csv = ConfigParser.getInstance().get_train_frame_label_csv_path()
+                self.labels_csv = ConfigParser.getInstance().get_dfdc_train_frame_label_csv_path()
                 self.crops_dir = ConfigParser.getInstance().get_dfdc_crops_train_path()
             elif dataset == 'mri':
                 self.labels_csv = ConfigParser.getInstance().get_train_mriframe_label_csv_path()
@@ -27,7 +27,7 @@ class DFDCDatasetSimple(Dataset):
             self.label_smoothing = label_smoothing
         elif mode == 'valid':
             if dataset == 'plain':
-                self.labels_csv = ConfigParser.getInstance().get_valid_frame_label_csv_path()
+                self.labels_csv = ConfigParser.getInstance().get_dfdc_valid_frame_label_csv_path()
                 self.crops_dir = ConfigParser.getInstance().get_dfdc_crops_valid_path()
             elif dataset == 'mri':
                 self.labels_csv = ConfigParser.getInstance().get_valid_mriframe_label_csv_path()
@@ -37,7 +37,7 @@ class DFDCDatasetSimple(Dataset):
 
         elif mode == 'test':
             if dataset == 'plain':
-                self.labels_csv = ConfigParser.getInstance().get_test_frame_label_csv_path()
+                self.labels_csv = ConfigParser.getInstance().get_dfdc_test_frame_label_csv_path()
                 self.crops_dir = ConfigParser.getInstance().get_dfdc_crops_test_path()
             elif dataset == 'mri':
                 self.labels_csv = ConfigParser.getInstance().get_test_mriframe_label_csv_path()
@@ -72,7 +72,7 @@ class DFDCDatasetSimple(Dataset):
                     label = item['label']
                 item['label'] = torch.tensor(label)
                 return item
-            except Exception:
+            except Exception as e:
                 # print(f"bad {os.path.join(self.crops_dir, str(item['video_id']), item['frame'])}")
                 index = random.randint(0, self.data_len)
 

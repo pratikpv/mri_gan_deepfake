@@ -15,7 +15,7 @@ def predict_mri_using_MRI_GAN(crops_path, mri_path, vid, imsize, overwrite=False
     vid_mri_path = os.path.join(mri_path, vid)
     if not overwrite and os.path.isdir(vid_mri_path):
         return
-    batch_size = 64
+    batch_size = 8
     mri_generator = get_MRI_GAN(pre_trained=True).cuda()
     os.makedirs(vid_mri_path, exist_ok=True)
     frame_names = glob(vid_path + '/*.png')
@@ -59,7 +59,7 @@ def predict_mri_using_MRI_GAN_batch(crops_path, mri_path):
     keep_trying = True
     MAX_RETRIES = 0
     retry_count = MAX_RETRIES
-    processes = 2
+    processes = 8
     while keep_trying:
         try:
             with multiprocessing.Pool(processes=processes) as pool:
@@ -91,8 +91,8 @@ def generate_frame_label_csv(mode=None, dataset=None):
     if mode == 'train':
         originals_, fakes_ = get_training_reals_and_fakes()
         if dataset == 'plain':
-            csv_file = ConfigParser.getInstance().get_train_frame_label_csv_path()
-            crop_path = ConfigParser.getInstance().get_train_crop_faces_data_path()
+            csv_file = ConfigParser.getInstance().get_dfdc_train_frame_label_csv_path()
+            crop_path = ConfigParser.getInstance().get_dfdc_crops_train_path()
         elif dataset == 'mri':
             csv_file = ConfigParser.getInstance().get_train_mriframe_label_csv_path()
             crop_path = ConfigParser.getInstance().get_train_mrip2p_png_data_path()
@@ -101,8 +101,8 @@ def generate_frame_label_csv(mode=None, dataset=None):
     elif mode == 'valid':
         originals_, fakes_ = get_valid_reals_and_fakes()
         if dataset == 'plain':
-            csv_file = ConfigParser.getInstance().get_valid_frame_label_csv_path()
-            crop_path = ConfigParser.getInstance().get_valid_crop_faces_data_path()
+            csv_file = ConfigParser.getInstance().get_dfdc_valid_frame_label_csv_path()
+            crop_path = ConfigParser.getInstance().get_dfdc_crops_valid_path()
         elif dataset == 'mri':
             csv_file = ConfigParser.getInstance().get_valid_mriframe_label_csv_path()
             crop_path = ConfigParser.getInstance().get_valid_mrip2p_png_data_path()
@@ -112,8 +112,8 @@ def generate_frame_label_csv(mode=None, dataset=None):
     elif mode == 'test':
         originals_, fakes_ = get_test_reals_and_fakes()
         if dataset == 'plain':
-            csv_file = ConfigParser.getInstance().get_test_frame_label_csv_path()
-            crop_path = ConfigParser.getInstance().get_test_crop_faces_data_path()
+            csv_file = ConfigParser.getInstance().get_dfdc_test_frame_label_csv_path()
+            crop_path = ConfigParser.getInstance().get_dfdc_crops_test_path()
         elif dataset == 'mri':
             csv_file = ConfigParser.getInstance().get_test_mriframe_label_csv_path()
             crop_path = ConfigParser.getInstance().get_test_mrip2p_png_data_path()
@@ -147,13 +147,13 @@ def generate_frame_label_csv(mode=None, dataset=None):
 
 def generate_frame_label_csv_files():
     modes = ['train', 'valid', 'test']
-    for m in modes:
-        print(f'Generating frame_label csv for processed {m} samples')
-        generate_frame_label_csv(mode=m, dataset='plain')
-
-    for m in modes:
-        print(f'Generating MRI frame_label csv for processed {m} samples')
-        generate_frame_label_csv(mode=m, dataset='mri')
+    #datasets = ['plain', 'mri']
+    datasets = ['mri']
+    for d in datasets:
+        print(f'Generating frame_label csv for dataset {d}')
+        for m in modes:
+            print(f'Generating frame_label csv for processed {m} samples')
+            generate_frame_label_csv(mode=m, dataset=d)
 
 
 def generate_DFDC_MRIs():

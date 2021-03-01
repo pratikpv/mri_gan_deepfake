@@ -2,7 +2,6 @@ import torch
 import sys
 from utils import *
 from data_utils.utils import *
-from deep_fake_detect.DeepFakeDetectModel_6 import *
 from functools import partial
 from timm.models.efficientnet import tf_efficientnet_b0_ns, tf_efficientnet_b7_ns
 import torch.nn as nn
@@ -37,6 +36,13 @@ def get_encoder(name=None):
     if name in encoder_params.keys():
         encoder = encoder_params[name]["init_op"]()
         return encoder
+    else:
+        raise Exception("Unknown encoder")
+
+
+def get_encoder_params(name=None):
+    if name in encoder_params.keys():
+        return encoder_params[name]["flat_features_dim"], encoder_params[name]["imsize"]
     else:
         raise Exception("Unknown encoder")
 
@@ -116,18 +122,6 @@ def get_predictions(output):
 
 def get_probability(output):
     return torch.sigmoid(output)
-
-
-def get_model(model_params):
-    model = None
-
-    if model_params['model_name'] == 'DeepFakeDetectModel_6':
-        model = DeepFakeDetectModel_6(frame_dim=model_params['imsize'], encoder_name=model_params['encoder_name'])
-    else:
-        raise Exception("Unknown model name passed")
-
-    return model
-
 
 
 def save_model_results_to_log(epoch=0, model=None, model_params=None, losses=None, accuracies=None, predicted=None,
@@ -290,12 +284,12 @@ def save_all_model_results(model=None, model_params=None, train_losses=None, tra
                            valid_sample_names=None, optimizer=None, criterion=None, epoch=0, log_dir=None,
                            log_kind=None, probabilities=None, amp_dict=None):
     report_type = 'Train'
-    save_model_results_to_log(epoch=epoch,model=model, model_params=model_params,
+    save_model_results_to_log(epoch=epoch, model=model, model_params=model_params,
                               losses=train_losses, accuracies=train_accuracies,
                               log_dir=log_dir, log_kind=log_kind, report_type=report_type)
 
     report_type = 'Validation'
-    save_model_results_to_log(epoch=epoch,model=model, model_params=model_params,
+    save_model_results_to_log(epoch=epoch, model=model, model_params=model_params,
                               losses=valid_losses, accuracies=valid_accuracies,
                               predicted=valid_predicted, ground_truth=valid_ground_truth,
                               sample_names=valid_sample_names,
@@ -479,4 +473,3 @@ def gen_report_for_per_frame_model(per_frame_csv=None, log_dir=None, report_type
             file.write('-' * log_params['line_len'] + '\n')
             file.write(misc)
             file.write('-' * log_params['line_len'] + '\n')
-

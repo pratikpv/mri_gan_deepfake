@@ -83,7 +83,7 @@ def get_training_reals_and_fakes():
 
 
 def get_valid_reals_and_fakes():
-    labels_csv = ConfigParser.getInstance().get_valid_labels_csv_filepath()
+    labels_csv = ConfigParser.getInstance().get_dfdc_valid_label_csv_path()
     df = pd.read_csv(labels_csv, index_col=0)
     originals = list(df[df['label'] == 0].index.values)
     fakes = list(df[df['label'] == 1].index.values)
@@ -92,7 +92,7 @@ def get_valid_reals_and_fakes():
 
 
 def get_test_reals_and_fakes():
-    labels_csv = ConfigParser.getInstance().get_test_labels_csv_filepath()
+    labels_csv = ConfigParser.getInstance().get_dfdc_test_label_csv_path()
     df = pd.read_csv(labels_csv, index_col=0)
     originals = list(df[df['label'] == 0].index.values)
     fakes = list(df[df['label'] == 1].index.values)

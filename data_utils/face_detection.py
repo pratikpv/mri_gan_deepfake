@@ -388,12 +388,18 @@ def crop_faces_for_datasets():
     crops_path = ConfigParser.getInstance().get_dfdc_crops_test_path()
     crop_faces_from_video_batch(input_filepath_list, landmarks_path, crops_path)
 
+    #
+    # FDF dataset
+    #
     print(f'Extracting landmarks from FDF data')
     input_images_dir = ConfigParser.getInstance().get_fdf_data_path()
     landmarks_file = ConfigParser.getInstance().get_fdf_json_path()
     crops_path = ConfigParser.getInstance().get_fdf_crops_path()
     crop_faces_from_image_batch(input_images_dir, landmarks_file, crops_path)
 
+    #
+    # FFHQ dataset
+    #
     print(f'Extracting landmarks from FFHQ data')
     input_images_dir = ConfigParser.getInstance().get_ffhq_data_path()
     landmarks_file = ConfigParser.getInstance().get_ffhq_json_path()
