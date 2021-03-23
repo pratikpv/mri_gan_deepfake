@@ -127,3 +127,15 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+assets/*.csv
+assets/*.json
+assets/*.pkl
+assets/aug_metadata
+test_code/
+logs/
+assets/demo_pics/
+assets/sample_augmentation/
+.idea/
+
+
