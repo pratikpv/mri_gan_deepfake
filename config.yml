@@ -10,6 +10,9 @@ data_path:
     train_frame_labels_csv_filename: 'train_frame_labels.csv'
     valid_frame_labels_csv_filename: 'valid_frame_labels.csv'
     test_frame_labels_csv_filename: 'test_frame_labels.csv'
+    data_augmentation:
+      plan_pkl_filename: 'data_augmentation_plan.pkl'
+      metadata: 'aug_metadata'
   celeb_df_v2:
     real: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-real'
     fake: '/home/therock/data2/data_workset/deepfake_data/Celeb-DF-v2/Celeb-synthesis'
@@ -64,7 +67,7 @@ MRI_GAN:
     b1: 0.5
     b2: 0.999
     lr: 0.0002
-    tau: 0.3
+    tau: 1.0
     imsize: 256
     model_name: 'MRI_GAN'
     test_sample_size: 16

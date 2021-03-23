@@ -75,6 +75,14 @@ class ConfigParser:
     def get_dfdc_test_frame_label_csv_path(self):
         return os.path.join(self.get_assets_path(), self.config['data_path']['dfdc']['test_frame_labels_csv_filename'])
 
+    def get_data_aug_plan_pkl_filename(self):
+        return os.path.join(self.get_assets_path(),
+                            self.config['data_path']['dfdc']['data_augmentation']['plan_pkl_filename'])
+
+    def get_aug_metadata_path(self):
+        return os.path.join(self.get_assets_path(),
+                            self.config['data_path']['dfdc']['data_augmentation']['metadata'])
+
     def get_celeb_df_v2_real_path(self):
         return self.config['data_path']['celeb_df_v2']['real']
 

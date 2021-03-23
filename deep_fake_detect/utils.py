@@ -1,3 +1,5 @@
+import multiprocessing
+
 import torch
 import sys
 from utils import *
@@ -17,6 +19,7 @@ import sys
 from utils import *
 from deep_fake_detect.checkpoint import *
 from sklearn.metrics import roc_curve, auc, roc_auc_score
+from tqdm import tqdm
 
 encoder_params = {
     "tf_efficientnet_b0_ns": {
@@ -32,9 +35,10 @@ encoder_params = {
 }
 
 
-def get_encoder(name=None):
+def get_encoder(name=None, pretrained=True):
     if name in encoder_params.keys():
-        encoder = encoder_params[name]["init_op"]()
+        encoder = encoder_params[name]["init_op"](pretrained=pretrained)
+        print(f'Returning {name}, pretrained = {pretrained}')
         return encoder
     else:
         raise Exception("Unknown encoder")
@@ -267,16 +271,19 @@ def save_model_results_to_log(epoch=0, model=None, model_params=None, losses=Non
                 file.write('-' * log_params['line_len'] + '\n')
 
     if model_params['batch_format'] == 'simple':
+        print(
+            f'all_samples_pred_csv:{all_samples_pred_csv}, log_dir={log_dir}, report_type={report_type},log_kind={log_kind}, model_params={model_params}')
+
+        fake_best, fraction_best, _ = grid_search_for_per_frame_model(per_frame_csv=all_samples_pred_csv,
+                                                                      log_dir=log_dir, report_type=report_type,
+                                                                      log_kind=log_kind, model_params=model_params)
         gen_report_for_per_frame_model(per_frame_csv=all_samples_pred_csv, log_dir=log_dir, report_type=report_type,
-                                       prob_threshold_fake=0.60, prob_threshold_real=0.60, fake_fraction=0.30,
+                                       prob_threshold_fake=fake_best, prob_threshold_real=0.60,
+                                       fake_fraction=fraction_best,
                                        log_kind=log_kind, model_params=model_params)
 
-        gen_report_for_per_frame_model(per_frame_csv=all_samples_pred_csv, log_dir=log_dir, report_type=report_type,
-                                       prob_threshold_fake=0.50, prob_threshold_real=0.60, fake_fraction=0.50,
-                                       log_kind=log_kind, model_params=model_params)
-
-    ConfigParser.getInstance().copy_config(dest=model_log_dir)
-    sys.stdout.flush()
+        ConfigParser.getInstance().copy_config(dest=model_log_dir)
+        sys.stdout.flush()
 
 
 def save_all_model_results(model=None, model_params=None, train_losses=None, train_accuracies=None, valid_losses=None,
@@ -473,3 +480,84 @@ def gen_report_for_per_frame_model(per_frame_csv=None, log_dir=None, report_type
             file.write('-' * log_params['line_len'] + '\n')
             file.write(misc)
             file.write('-' * log_params['line_len'] + '\n')
+            print(f'report saved at: {model_log_file}')
+
+
+def get_classificiton_report_simple(prob_threshold_fake=None, prob_threshold_real=None, fake_fraction=None,
+                                    all_videos=None,
+                                    df=None):
+    # print(f'processing for prob_threshold_fake={prob_threshold_fake}, fake_fraction={fake_fraction}')
+    final_df = pd.DataFrame(
+        columns=['video', 'num_fake_frames', 'num_real_frames', 'total_number_frames', 'ground_truth'])
+    for v in all_videos:
+        num_fake_frames, fake_prob, num_real_frames, total_number_frames, \
+        ground_truth = get_per_video_stat(df, v, prob_threshold_fake, prob_threshold_real)
+        prediction = pred_strategy(num_fake_frames, num_real_frames, total_number_frames, fake_fraction=fake_fraction)
+        final_df = final_df.append({'video': v, 'num_fake_frames': num_fake_frames,
+                                    'num_real_frames': num_real_frames, 'total_number_frames': total_number_frames,
+                                    'ground_truth': ground_truth, 'prediction': prediction, 'fake_prob': fake_prob},
+                                   ignore_index=True)
+
+    final_df = final_df.set_index(['video'])
+    class_names = ['Real', 'Fake']
+    report = metrics.classification_report(final_df['ground_truth'], final_df['prediction'],
+                                           target_names=list(class_names), output_dict=True)
+
+    return prob_threshold_fake, prob_threshold_real, fake_fraction, report
+
+
+def grid_search_for_per_frame_model(per_frame_csv=None, log_dir=None, report_type=None,
+                                    log_kind=None, model_params=None):
+    if not os.path.isfile(per_frame_csv):
+        return None, None, None
+    df = pd.read_csv(per_frame_csv)
+
+    df['video'] = df['sample_name'].apply(split_video)
+    df['frames'] = df['sample_name'].apply(split_frames)
+    df['norm_probability'] = df.apply(lambda x: norm_probability(x.predictions, x.probability), axis=1)
+    all_videos = set(df['video'].values)
+
+    prob_threshold_fake_range = [0.50, 0.55, 0.60, 0.70, 0.80, 0.90]
+    prob_threshold_real = 0.55  # unused
+    fake_fraction_range = [0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70]
+
+    grid_search_df = pd.DataFrame(
+        columns=['prob_threshold_fake', 'prob_threshold_real', 'fake_fraction', 'accuracy', 'report'])
+
+    with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
+        jobs = []
+        results = []
+        print('Scheduling jobs')
+        for prob_threshold_fake in prob_threshold_fake_range:
+            for fake_fraction in fake_fraction_range:
+                jobs.append(pool.apply_async(get_classificiton_report_simple,
+                                             (prob_threshold_fake, prob_threshold_real, fake_fraction, all_videos, df,),
+                                             )
+                            )
+
+        for job in tqdm(jobs, desc="Executing grid-search"):
+            results.append(job.get())
+
+    print('Parsing results')
+
+    for r in results:
+        prob_threshold_fake, prob_threshold_real, fake_fraction, report = r
+        grid_search_df = grid_search_df.append(
+            {'prob_threshold_fake': prob_threshold_fake, 'prob_threshold_real': prob_threshold_real,
+             'fake_fraction': fake_fraction, 'accuracy': report['accuracy'], 'report': str(report)},
+            ignore_index=True)
+    top_gs = grid_search_df.nlargest(1, 'accuracy')
+    prob_threshold_fake_best = top_gs.iloc[0]['prob_threshold_fake']
+    fake_fraction_best = top_gs.iloc[0]['fake_fraction']
+    accuracy_best = top_gs.iloc[0]['accuracy']
+    print(
+        f"top_gs best param: prob_threshold_fake {prob_threshold_fake_best}, fake_fraction_best {fake_fraction_best}, accuracy_best {accuracy_best}")
+
+    model_sub_dir = 'grid_search'
+    model_log_dir = os.path.join(log_dir, log_kind, model_params['model_name'], report_type, model_sub_dir)
+    os.makedirs(model_log_dir, exist_ok=True)
+    grid_search_df_path = os.path.join(model_log_dir, 'grid_search_df.csv')
+
+    grid_search_df.to_csv(grid_search_df_path)
+
+    return prob_threshold_fake_best, fake_fraction_best, accuracy_best
