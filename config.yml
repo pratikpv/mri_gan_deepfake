@@ -67,7 +67,7 @@ MRI_GAN:
     b1: 0.5
     b2: 0.999
     lr: 0.0002
-    tau: 1.0
+    tau: 0.3
     imsize: 256
     model_name: 'MRI_GAN'
     test_sample_size: 16

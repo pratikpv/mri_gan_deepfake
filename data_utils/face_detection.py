@@ -58,7 +58,6 @@ def extract_landmarks_from_video(input_videofile, out_dir, batch_size=32, detect
 
     capture = cv2.VideoCapture(input_videofile)
     frames_num = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
-
     if detector is None:
         detector = get_face_detector_model()
 
