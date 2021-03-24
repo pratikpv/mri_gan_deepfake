@@ -239,8 +239,10 @@ dependencies:
     - docutils==0.16
     - eel==0.14.0
     - facenet-pytorch==2.5.1
+    - filelock==3.0.12
     - flowiz==2.3.1
     - future==0.18.2
+    - gdown==3.12.2
     - gevent==20.12.1
     - gevent-websocket==0.10.1
     - greenlet==0.4.17
