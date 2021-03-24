@@ -147,8 +147,7 @@ def generate_frame_label_csv(mode=None, dataset=None):
 
 def generate_frame_label_csv_files():
     modes = ['train', 'valid', 'test']
-    #datasets = ['plain', 'mri']
-    datasets = ['mri']
+    datasets = ['plain', 'mri']
     for d in datasets:
         print(f'Generating frame_label csv for dataset {d}')
         for m in modes:
