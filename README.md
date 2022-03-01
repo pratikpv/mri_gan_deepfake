@@ -117,22 +117,17 @@ Note: This is very involved process.
 
 ## Pre-trained models
 
-Download all pre-trained model weights using `python download_weights.py`. Weights are uploaded at below mentioned URLs.
+Download all pre-trained model weights to reproduce the results.
 
-1. MRI-GAN. 
-Model with tau = 0.3 and Generator with the lowest loss: 
-https://drive.google.com/uc?id=1qEfI96SYOWCumzPdQlcZJZvtAW_OXUcH
+1. MRI-GAN. Model with tau = 0.3 and Generator with the lowest loss:  https://drive.google.com/uc?id=1qEfI96SYOWCumzPdQlcZJZvtAW_OXUcH
 1. DeepFake detection models
-1. Plain-frames based:
-https://drive.google.com/uc?id=1_Pxv6ptxqXKtDJNkodkDmMTD_KRo08za
-1. MRI based: 
-https://drive.google.com/uc?id=1xKzehNuq1B1th-_-U6OG9v2Q2Odws6VG 
+   1. Plain-frames based: https://drive.google.com/uc?id=1_Pxv6ptxqXKtDJNkodkDmMTD_KRo08za
+   1. MRI based: https://drive.google.com/uc?id=1xKzehNuq1B1th-_-U6OG9v2Q2Odws6VG 
 
 ## DeepFake Detection App
 
 Use the model to test a given video file.
 
-1. Download all pre-trained model weights. 
-`python download_weights.py`
+1. Download all pre-trained model weights.
 1. Run the command-line App 
 `python detect_deepfake_app.py --input_videofile <path to video file> --method <detection method>`. Detection method can be `plain_frames` or `MRI`
